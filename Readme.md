@@ -1,48 +1,48 @@
-# Load AGE cypher query into networkx
+# Python Support for Networkx
+NetworkX is one of the well known python libraries to perform network analysis. Extracting a graph or subgraph from AGE and creating a NetworkX graph, performing operations on the graph and saving the resultant graph into AGE will allow developers and data scientists using NetworkX to use AGE.
 
-## Installation
-- Clone the github repo
-- Go to project directory
-- Install dependency : `pip install -r requirements.txt`
-- Change connection string according to your age configuration from main.py
+Note : AGE support only Directed edge, We have converted age to Networkx Directed Graph and vice versa. For more information about [Networkx Directed Graph](https://networkx.org/documentation/stable/reference/classes/digraph.html)
+
+
+## Load From AGE to Networkx
+- This Function will load all the nodes and edges found from the graph into Networkx directed Graph
+- View `sample_ageToNetworkx.py` file for sample use
 ```py
+import psycopg2
+from age_networkx import *
+
+# Change the following connection according to your configuration
 conn = psycopg2.connect(
     host="localhost", 
     port="5430", 
     dbname="postgresDB", 
     user="postgresUser", 
     password="postgresPW")
-```
-- Run program : `python main.py`
+GRAPH_NAME = 'karate'
 
-## Used Cypher query to create nodes
-```sql
-SELECT * from cypher(
-    'karate', 
-    $$ 
-        CREATE (v:People {'name' : 1}) 
-        RETURN v
-    $$
-) as (v agtype); 
+G = ageToNetworkx(connection=conn, GRAPH_NAME= GRAPH_NAME)
 ```
 
-## Used Cypher query to create edges
-```sql
-SELECT * from cypher(
-    'karate', 
-    $$ 
-        MATCH ( a:People {'name' : 1}), (b:People {'name' : 2}) 
-        CREATE (a)-[r:WorkWith {}]->(b)
-    $$) as (v agtype); 
-```
+## Load From Networkx to AGE
+- This Function will add all the nodes and edges found from a Networkx Directed Graph to Apache AGE Graph Database.
+- Here Id will be changed as AGE driver assign id for nodes and edges automatically
+- View `sample_networkxToAge.py` file for sample use
+```py
+import psycopg2
+from age_networkx import *
+import networkx as nx
 
-## Used Cypher query to get all edges
-```sql
-SELECT * from cypher(
-    'karate', 
-    $$ 
-        MATCH v=()-[]->() 
-        RETURN v 
-    $$
-) as (v agtype); 
+# Change the following connection according to your configuration
+conn = psycopg2.connect(
+    host="localhost", 
+    port="5430", 
+    dbname="postgresDB", 
+    user="postgresUser", 
+    password="postgresPW")
+GRAPH_NAME = 'karate'
+
+G = nx.DiGraph()
+# add nodes and edges here. 
+
+networkxToAge(conn, G, GRAPH_NAME=GRAPH_NAME)
 ```
