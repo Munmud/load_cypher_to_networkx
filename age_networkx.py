@@ -1,6 +1,6 @@
 """
 Author : Moontasir Mahmood
-Githut : munmud
+Github : munmud
 """
 
 from age import *
@@ -158,7 +158,7 @@ def networkxToAge(connection : psycopg2.connect,
                 # if exception occurs, you must rollback all transaction. 
                 connection.rollback()
 
-    def set_edge(id1 : int | str , id2 : int | str, edge_label: str, edge_properties)->None:
+    def set_edge(id1 : int | str , id2 : int | str, edge_label: str, edge_properties: Dict[str, Any])->None:
         """Add edge to the graph"""
         with connection.cursor() as cursor:
             query ="""
@@ -168,7 +168,8 @@ def networkxToAge(connection : psycopg2.connect,
                     MATCH (a), (b)
                     WHERE id(a) = %s AND id(b) = %s
                     CREATE (a)-[r:%s %s]->(b)
-                $$) as (v agtype); 
+                    RETURN r
+                $$) as (v agtype);
             """ % (
                 GRAPH_NAME,
                 mapId[id1],
@@ -180,9 +181,8 @@ def networkxToAge(connection : psycopg2.connect,
                 cursor.execute(query)
                 connection.commit()
                 for row in cursor:
-                    print(row[0])
-                    print(row)
-                    print(cursor)
+                    # print(row[0].id)
+                    pass
             except Exception as ex:
                 print('Exception : ',type(ex), ex)
                 # if exception occurs, you must rollback all transaction. 
@@ -200,4 +200,4 @@ def networkxToAge(connection : psycopg2.connect,
                  edge_label=G.edges[u, v]['label'],
                  edge_properties=G.edges[u, v]['properties'])
     
-    print("Successfully Added nodes with id mapped as below\n" , mapId)
+    # print("Successfully Added nodes with id mapped as below\n" , mapId)

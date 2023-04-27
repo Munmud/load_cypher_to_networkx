@@ -1,6 +1,6 @@
 """
 Author : Moontasir Mahmood
-Githut : munmud
+Github : munmud
 """
 
 import psycopg2
